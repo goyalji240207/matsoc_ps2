@@ -1,0 +1,36 @@
+#include <iostream>
+#include <string>
+#include <vector>
+using namespace std;
+
+int main() {
+    string s;
+    if (!(cin >> s)) return 0;
+
+    int n = s.length();
+    vector<long long> count(2019, 0);
+    
+    long long current_remainder = 0;
+    long long ten_pow = 1; // 10^0, 10^1, ... mod 2019
+    int mod = 2019;
+
+    count[0] = 1;
+
+    for (int i = n - 1; i >= 0; i--) {
+        int digit = s[i] - '0';
+        current_remainder = (current_remainder + digit * ten_pow) % mod;
+
+        count[current_remainder]++;
+
+        ten_pow = (ten_pow * 10) % mod;
+    }
+
+    long long total_pairs = 0;
+    for (int i = 0; i < mod; i++) {
+        total_pairs += (count[i] * (count[i] - 1)) / 2;
+    }
+
+    cout << total_pairs << endl;
+
+    return 0;
+}
