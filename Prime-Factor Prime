@@ -1,0 +1,68 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+const int MAX_SQRT = 31623; // sqrt(10^9)
+vector<int> small_primes;
+
+void sieve() {
+    vector<bool> is_prime(MAX_SQRT, true);
+    is_prime[0] = is_prime[1] = false;
+    for (int p = 2; p * p < MAX_SQRT; p++) {
+        if (is_prime[p]) {
+            for (int i = p * p; i < MAX_SQRT; i += p)
+                is_prime[i] = false;
+        }
+    }
+    for (int p = 2; p < MAX_SQRT; p++) {
+        if (is_prime[p]) small_primes.push_back(p);
+    }
+}
+
+bool is_count_prime(int n) {
+    if (n < 2) return false;
+    for (int i = 2; i * i <= n; i++) {
+        if (n % i == 0) return false;
+    }
+    return true;
+}
+
+int main() {
+    long long l, r;
+    if (!(cin >> l >> r)) return 0;
+
+    sieve();
+
+    int range_size = r - l + 1;
+    vector<int> factor_counts(range_size, 0);
+    vector<long long> remaining_values(range_size);
+    for (int i = 0; i < range_size; i++) {
+        remaining_values[i] = l + i;
+    }
+
+    for (int p : small_primes) {
+        long long first_multiple = (l + p - 1) / p * p;
+        for (long long j = first_multiple; j <= r; j += p) {
+            int idx = j - l;
+            while (remaining_values[idx] % p == 0) {
+                remaining_values[idx] /= p;
+                factor_counts[idx]++;
+            }
+        }
+    }
+
+    int total_pfp = 0;
+    for (int i = 0; i < range_size; i++) {
+        if (remaining_values[i] > 1) {
+            factor_counts[i]++;
+        }
+        
+        if (is_count_prime(factor_counts[i])) {
+            total_pfp++;
+        }
+    }
+
+    cout << total_pfp << endl;
+
+    return 0;
+}
